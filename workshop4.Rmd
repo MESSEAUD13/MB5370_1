@@ -1,0 +1,194 @@
+---
+title: "workshop4"
+author: "AdrienM"
+date: "2026-05-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Load tidyverse (if not already loaded)
+library(tidyverse)
+
+# Sample coral data
+coral_monitoring <- tibble(
+  site = c("Site_A", "Site_B", "Site_C"),
+  depth_m = c(12, 35, 8)
+)
+
+# Classify depth using if_else
+coral_monitoring <- coral_monitoring %>% 
+  mutate(zone = if_else(depth_m > 30, "Deep Reef", "Shallow Reef"))
+```
+
+```{r}
+coral_monitoring <- coral_monitoring %>% 
+  mutate(reef_category = case_when(
+    depth_m < 10  ~ "Lagoon / Flats",
+    depth_m <= 30 ~ "Crest / Slope",
+    depth_m > 30  ~ "Mesophotic / Deep",
+    TRUE          ~ "Unclassified" # Catch-all remainder
+  ))
+```
+
+```{r}
+# Classic loop anatomy
+for (year in 2020:2024) {
+  print(paste("Processing climate data for year:", year))
+}
+```
+
+```{r}
+# Loop across index sequences
+transect_lengths <- c(50, 100, 25, 75)
+
+for (i in seq_along(transect_lengths)) {
+  print(paste("Transect number", i, "measures", transect_lengths[i], "metres."))
+}
+```
+
+```{r}
+site_areas <- c(144, 400, 625)
+results <- numeric(length(site_areas)) # Must build an empty container first
+
+for(i in seq_along(site_areas)) {
+  results[i] <- sqrt(site_areas[i])}
+```
+
+```{r}
+library(purrr)
+# Map directly and define your expected output type explicitly
+mapped_results <- map_dbl(site_areas, sqrt)
+```
+
+```{r}
+# Iterate a summary function over split lists of data
+iris %>% 
+  split(.$Species) %>% 
+  map(~summary(.x))
+```
+
+```{r}
+# Function Definition
+calculate_coral_mortality <- function(initial_count, surviving_count) {
+  
+  # Logic safety switch using our conditional tools!
+  if (initial_count <= 0) {
+    stop("Initial count must be greater than zero.")
+  }
+  
+  mortality_rate <- (initial_count - surviving_count) / initial_count
+  return(mortality_rate)
+}
+
+# Utilizing your custom function
+calculate_coral_mortality(initial_count = 120, surviving_count = 84)
+```
+```{r}
+convert_temp_c_to_f <- function(celsius) {
+  if (celsius < -273.15) {
+    stop("Temperature cannot be below absolute zero (-273.15°C).")
+  }
+  
+  fahrenheit <- (celsius * 9/5) + 32
+  return(fahrenheit)
+}
+
+# Valid test
+convert_temp_c_to_f(25)
+```
+
+```{r}
+library(tidyverse)
+library(palmerpenguins)
+
+# Load the penguins dataset
+data(penguins)
+
+# Create custom color palettes
+species_colors <- c(
+  "Adelie" = "#FF6B6B",
+  "Chinstrap" = "#4ECDC4",
+  "Gentoo" = "#45B7D1"
+)
+
+# Generate boxplot comparing flipper_length_mm across species, faceted by island
+penguins %>%
+  drop_na(flipper_length_mm) %>%
+  ggplot(aes(x = species, y = flipper_length_mm, fill = species)) +
+  geom_boxplot(alpha = 0.8, outlier.size = 2, outlier.alpha = 0.7) +
+  facet_wrap(~island, ncol = 3) +
+  scale_fill_manual(values = species_colors) +
+  labs(
+    title = "Flipper Length Distribution by Species and Island",
+    subtitle = "Palmer Penguins Dataset",
+    x = "Species",
+    y = "Flipper Length (mm)",
+    fill = "Species"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 12, hjust = 0.5, color = "gray60"),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.title = element_text(size = 12, face = "bold"),
+    strip.text = element_text(size = 11, face = "bold"),
+    panel.grid.major.y = element_line(color = "gray90"),
+    legend.position = "bottom"
+  )
+
+# Optional: Save the plot
+ggsave("flipper_length_boxplot.png", width = 12, height = 6, dpi = 300)
+
+```
+
+```{r}
+library(tidyverse)
+library(palmerpenguins)
+
+# Load the penguins dataset
+data(penguins)
+
+# Create custom color palettes
+species_colors <- c(
+  "Adelie" = "#FF6B6B",
+  "Chinstrap" = "#4ECDC4",
+  "Gentoo" = "#45B7D1"
+)
+
+# Generate scatter plot with linear regression trend lines
+penguins %>%
+  drop_na(body_mass_g, flipper_length_mm) %>%
+  ggplot(aes(x = flipper_length_mm, y = body_mass_g, color = species, fill = species)) +
+  geom_point(size = 3, alpha = 0.6, shape = 21, color = "black", stroke = 0.5) +
+  geom_smooth(method = "lm", se = TRUE, alpha = 0.15, size = 1.2) +
+  scale_color_manual(values = species_colors) +
+  scale_fill_manual(values = species_colors) +
+  labs(
+    title = "Body Mass vs Flipper Length by Species",
+    subtitle = "Palmer Penguins Dataset with Linear Regression Trends",
+    x = "Flipper Length (mm)",
+    y = "Body Mass (g)",
+    color = "Species",
+    fill = "Species"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 12, hjust = 0.5, color = "gray60"),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(size = 10),
+    panel.grid.major = element_line(color = "gray90"),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom",
+    legend.title = element_text(face = "bold")
+  )
+
+# Optional: Save the plot
+ggsave("flipper_mass_regression.png", width = 10, height = 7, dpi = 300)
+
+```
+
