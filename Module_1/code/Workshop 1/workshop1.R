@@ -1,6 +1,6 @@
 #------------------------------------#
 # MB5370: Introduction to Programming
-# Justin Proctor
+# Adrien Messeaud 
 # May 2026
 
 # Workspace:
@@ -22,13 +22,12 @@ length(vector)
 
 1:30
 
-6*
-  2  
+6*2  
 
 # Variables and Assignment ####
 # This section focuses on understanding how data is stored in R and why that matters.
 age_yrs <- 26
-name <- 'Justin'
+name <- 'Adrien'
 age_yrs + 1
 age_yrs + age_yrs
 
