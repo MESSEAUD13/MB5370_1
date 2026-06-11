@@ -1,0 +1,462 @@
+---
+title: "Module1_0"
+author: "AdrienM"
+date: "2026-05-21"
+output:
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Workshop 1 - Introduction to R and RStudio
+
+```{r}
+source(here::here("Workshop 1", "workshop1.R"))
+```
+
+# Worshop 2 - Data Visualization with ggplot2
+
+#New chunk shortcuts 
+
+Comd + opt I 
+Crtl + Alt I 
+
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+mpg
+```
+
+#first ggplot
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, colour = class))
+```
+#change point color by class
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, size = class))
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, alpha = class))
+```
+#change point shape by class
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy), color = "blue")
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(data = mpg) +
+  geom_point(
+    mapping = aes(
+      x = displ,
+      y = hwy,
+      colour = displ < 5
+    )
+  )
+```
+#facet and panel plots
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_wrap(~ class, nrow = 2)
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ cyl)
+```
+#Fitting simple lines
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+```{r}
+ggplot(data = mpg) +
+#  geom_point(mapping = aes(x = displ, y = hwy)) # points horrible
+  geom_smooth(mapping = aes(x = displ, y = hwy)) # try smooth line
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, linetype = drv))
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, group = drv))
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(
+    mapping = aes(x = displ, y = hwy, color = drv),
+    show.legend = FALSE,
+  )
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point(mapping = aes(color = class)) +
+  geom_smooth()
+```
+
+
+```{r}
+library(dplyr)
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point(mapping = aes(color = class)) +
+  geom_smooth(
+    data = filter(mpg, class == "subcompact"),
+    se = FALSE
+  )
+```
+
+```{r}
+ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point() +
+  geom_smooth()
+
+ggplot() +
+  geom_point(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_smooth(data = mpg, mapping = aes(x = displ, y = hwy))
+```
+#Transformations and Stats
+#Plotting statistics
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut))
+```
+
+```{r}
+ggplot(data = diamonds) +
+  stat_count(mapping = aes(x = cut))
+```
+
+#overriding defaults in ggplot2
+```{r}
+demo <- tribble(
+  ~cut,         ~freq,
+  "Fair",       1610,
+  "Good",       4906,
+  "Very Good",  12082,
+  "Premium",    13791,
+  "Ideal",      21551
+)
+demo
+
+ggplot(data = demo) +
+  geom_bar(mapping = aes(x = cut, y = freq), stat = "identity")
+```
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, y = stat(prop), group = 1))
+#> Warning: `stat(prop)` was deprecated in ggplot2 3.4.0.
+```
+
+#Plotting statistical details
+
+```{r}
+ggplot(data = diamonds) +
+  stat_summary(
+    mapping = aes(x = cut, y = depth),
+    fun.min = min,
+    fun.max = max,
+    fun = median
+  )
+```
+
+#Aestestic adjustements
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, colour = cut))
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = cut))
+```
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = clarity))
+```
+
+```{r}
+#To alter transparency (alpha)
+ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) +
+  geom_bar(alpha = 1/5, position = "identity")
+
+#To color the bar outlines with no fill color
+ggplot(data = diamonds, mapping = aes(x = cut, colour = clarity)) +
+  geom_bar(fill = NA, position = "identity")
+```
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "fill")
+```
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "dodge")
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy), position = "jitter")
+```
+
+#The layered grammar of graphics
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(
+    mapping = aes(x = displ, y = hwy, color = class),
+    stat = "identity",
+    position = "identity"
+  )
+```
+
+<!-- ggplot(data = <DATA>) +  -->
+<!--   <GEOM_FUNCTION>( -->
+<!--      mapping = aes(<MAPPINGS>), -->
+<!--      stat = <STAT>,  -->
+<!--      position = <POSITION> -->
+<!--   ) + -->
+<!--   <FACET_FUNCTION> -->
+
+# Workshop 3 - R studio to github 
+
+```{r}
+library(usethis)
+```
+
+```{r}
+use_git_config(user.name = "MESSEAUD13", user.mail = "adriencharleslouis.messeaud@my.jcu.edu.au")
+```
+
+# Workshop 4 
+
+```{r}
+# Load tidyverse (if not already loaded)
+library(tidyverse)
+```
+
+```{r}
+# Sample coral data
+coral_monitoring <- tibble(
+  site = c("Site_A", "Site_B", "Site_C"),
+  depth_m = c(12, 35, 8)
+)
+
+# Classify depth using if_else
+coral_monitoring <- coral_monitoring %>% 
+  mutate(zone = if_else(depth_m > 30, "Deep Reef", "Shallow Reef"))
+```
+
+```{r}
+coral_monitoring <- coral_monitoring %>% 
+  mutate(reef_category = case_when(
+    depth_m < 10  ~ "Lagoon / Flats",
+    depth_m <= 30 ~ "Crest / Slope",
+    depth_m > 30  ~ "Mesophotic / Deep",
+    TRUE          ~ "Unclassified" # Catch-all remainder
+  ))
+```
+
+```{r}
+# Classic loop anatomy
+for (year in 2020:2024) {
+  print(paste("Processing climate data for year:", year))
+}
+```
+
+```{r}
+# Loop across index sequences
+transect_lengths <- c(50, 100, 25, 75)
+
+for (i in seq_along(transect_lengths)) {
+  print(paste("Transect number", i, "measures", transect_lengths[i], "metres."))
+}
+```
+
+```{r}
+site_areas <- c(144, 400, 625)
+results <- numeric(length(site_areas)) # Must build an empty container first
+
+for(i in seq_along(site_areas)) {
+  results[i] <- sqrt(site_areas[i])}
+```
+
+```{r}
+library(purrr)
+# Map directly and define your expected output type explicitly
+mapped_results <- map_dbl(site_areas, sqrt)
+```
+
+```{r}
+# Iterate a summary function over split lists of data
+iris %>% 
+  split(.$Species) %>% 
+  map(~summary(.x))
+```
+
+```{r}
+# Function Definition
+calculate_coral_mortality <- function(initial_count, surviving_count) {
+  
+  # Logic safety switch using our conditional tools!
+  if (initial_count <= 0) {
+    stop("Initial count must be greater than zero.")
+  }
+  
+  mortality_rate <- (initial_count - surviving_count) / initial_count
+  return(mortality_rate)
+}
+```
+
+# Utilizing your custom function
+```{r}
+calculate_coral_mortality(initial_count = 120, surviving_count = 84)
+```
+
+```{r}
+convert_temp_c_to_f <- function(celsius) {
+  if (celsius < -273.15) {
+    stop("Temperature cannot be below absolute zero (-273.15°C).")
+  }
+  fahrenheit <- (celsius * 9/5) + 32
+  return(fahrenheit)
+}
+```
+
+```{r}
+# Valid test
+convert_temp_c_to_f(25)
+```
+
+```{r}
+library(tidyverse)
+library(palmerpenguins)
+
+# Load the penguins dataset
+data(penguins)
+
+# Create custom color palettes
+species_colors <- c(
+  "Adelie" = "#FF6B6B",
+  "Chinstrap" = "#4ECDC4",
+  "Gentoo" = "#45B7D1"
+)
+
+# Generate boxplot comparing flipper_length_mm across species, faceted by island
+penguins %>%
+  drop_na(flipper_length_mm) %>%
+  ggplot(aes(x = species, y = flipper_length_mm, fill = species)) +
+  geom_boxplot(alpha = 0.8, outlier.size = 2, outlier.alpha = 0.7) +
+  facet_wrap(~island, ncol = 3) +
+  scale_fill_manual(values = species_colors) +
+  labs(
+    title = "Flipper Length Distribution by Species and Island",
+    subtitle = "Palmer Penguins Dataset",
+    x = "Species",
+    y = "Flipper Length (mm)",
+    fill = "Species"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 12, hjust = 0.5, color = "gray60"),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.title = element_text(size = 12, face = "bold"),
+    strip.text = element_text(size = 11, face = "bold"),
+    panel.grid.major.y = element_line(color = "gray90"),
+    legend.position = "bottom"
+  )
+
+# Optional: Save the plot
+ggsave("flipper_length_boxplot.png", width = 12, height = 6, dpi = 300)
+
+```
+
+```{r}
+library(tidyverse)
+library(palmerpenguins)
+```
+
+```{r}
+# Load the penguins dataset
+data(penguins)
+
+# Create custom color palettes
+species_colors <- c(
+  "Adelie" = "#FF6B6B",
+  "Chinstrap" = "#4ECDC4",
+  "Gentoo" = "#45B7D1"
+)
+
+# Generate scatter plot with linear regression trend lines
+penguins %>%
+  drop_na(body_mass_g, flipper_length_mm) %>%
+  ggplot(aes(x = flipper_length_mm, y = body_mass_g, color = species, fill = species)) +
+  geom_point(size = 3, alpha = 0.6, shape = 21, color = "black", stroke = 0.5) +
+  geom_smooth(method = "lm", se = TRUE, alpha = 0.15, size = 1.2) +
+  scale_color_manual(values = species_colors) +
+  scale_fill_manual(values = species_colors) +
+  labs(
+    title = "Body Mass vs Flipper Length by Species",
+    subtitle = "Palmer Penguins Dataset with Linear Regression Trends",
+    x = "Flipper Length (mm)",
+    y = "Body Mass (g)",
+    color = "Species",
+    fill = "Species"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 12, hjust = 0.5, color = "gray60"),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(size = 10),
+    panel.grid.major = element_line(color = "gray90"),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom",
+    legend.title = element_text(face = "bold")
+  )
+```
+
+```{r}
+# Optional: Save the plot
+ggsave("flipper_mass_regression.png", width = 10, height = 7, dpi = 300)
+```
+
